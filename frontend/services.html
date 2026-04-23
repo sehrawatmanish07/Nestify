@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nestify | Services</title>
+    <link rel="stylesheet" href="style.css?v=6">
+    <script src="config.js"></script>
+</head>
+<body>
+
+<!-- Header -->
+<header class="site-header">
+    <div class="nav-wrapper">
+        <!-- LOGO -->
+        <div class="nav-logo">
+            <a href="index.html" class="logo-flex">
+                <img src="Email logo.png" alt="Nestify Logo" class="logo-img">
+                <span class="logo-text">Nestify</span>
+            </a>
+        </div>
+
+        <!-- NAVIGATION -->
+        <nav class="site-nav">
+            <a href="index.html">Home</a>
+            <a href="tiffin.html">Tiffin</a>
+            <a href="hostels.html">Hostels</a>
+            <a href="feedback.html">Feedback</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+
+        <!-- BUTTON -->
+        <div class="nav-action">
+            <a href="register.html" class="signup-btn">Sign up</a>
+        </div>
+    </div>
+</header>
+
+<section class="page-banner">
+    <div class="page-banner-content">
+        <h1>Our Services</h1>
+        <p>
+            Discover premium student accommodation solutions with meal and without meal options,
+            including PGs, hostels, villas, and flats designed for comfort, safety, and convenience.
+        </p>
+    </div>
+</section>
+
+<section class="section" id="services-page">
+    <div class="panel">
+        <div class="section-head">
+            <div>
+                <span class="muted-label">What We Offer</span>
+                <h3>Choose the perfect stay for your lifestyle</h3>
+                <p>Professionally managed accommodation options for students and working professionals.</p>
+            </div>
+        </div>
+
+        <div class="services-grid beautiful-services" id="services-grid">
+            <!-- Services will be loaded here via JavaScript -->
+            <div class="loading">Loading services...</div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="panel">
+        <div class="section-head">
+            <div>
+                <span class="muted-label">Why Choose Us</span>
+                <h3>Best accommodation platform for students</h3>
+                <p>We make student living easier, safer, and more convenient with a modern and trusted experience.</p>
+            </div>
+        </div>
+
+        <div class="why-grid">
+            <div class="why-card">
+                <div class="why-image" style="background-image:url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80');"></div>
+                <div class="why-body">
+                    <h4>Verified Properties</h4>
+                    <p>All stays are carefully selected for safety, comfort, and excellent location access.</p>
+                </div>
+            </div>
+
+            <div class="why-card">
+                <div class="why-image" style="background-image:url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1200&q=80');"></div>
+                <div class="why-body">
+                    <h4>Affordable Pricing</h4>
+                    <p>Budget-friendly stay options for every student and working professional.</p>
+                </div>
+            </div>
+
+            <div class="why-card">
+                <div class="why-image" style="background-image:url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=80');"></div>
+                <div class="why-body">
+                    <h4>Meal & Non-Meal Options</h4>
+                    <p>Choose accommodation plan that suits your daily lifestyle and budget.</p>
+                </div>
+            </div>
+
+            <div class="why-card">
+                <div class="why-image" style="background-image:url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80');"></div>
+                <div class="why-body">
+                    <h4>Easy Booking</h4>
+                    <p>Simple browsing, clear details, and fast support to make booking easy.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="site-footer">
+    <style>
+    /* =========================
+       PREMIUM FOOTER
+    ========================= */
+
+    .site-footer {
+        background: linear-gradient(135deg, #eee6d7, #e6ddcd);
+        border-top-left-radius: 34px;
+        border-top-right-radius: 34px;
+        padding: 70px 0 24px;
+        margin-top: 70px;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 -10px 35px rgba(15, 23, 42, 0.04);
+    }
+
+    .site-footer .container {
+        width: min(92%, 1440px);
+        margin: 0 auto;
+    }
+
+    .footer-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr 1fr 1fr;
+        gap: 28px;
+    }
+
+    /* =========================
+       BORDER CARD STYLE
+    ========================= */
+
+    .footer-column {
+        background: rgba(255, 255, 255, 0.6);
+        padding: 20px 22px;
+        border-radius: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        backdrop-filter: blur(8px);
+    }
+
+    .footer-column:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+        border-color: rgba(0, 0, 0, 0.15);
+    }
+
+    /* =========================
+       TEXT + LINKS
+    ========================= */
+
+    .footer-heading {
+        font-size: 18px;
+        font-weight: 800;
+        color: #162b4a;
+        text-transform: uppercase;
+        position: relative;
+        padding-bottom: 8px;
+    }
+
+    .footer-heading::after {
+        content: "";
+        width: 40px;
+        height: 3px;
+        background: linear-gradient(90deg, #d6b36a, #bb9550);
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        border-radius: 10px;
+    }
+
+    .footer-about {
+        color: #4b5563;
+        line-height: 1.8;
+    }
+
+    .footer-links,
+    .footer-contact {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        gap: 12px;
+    }
+
+    .footer-links a {
+        color: #334155;
+        transition: 0.3s;
+    }
+
+    .footer-links a:hover {
+        color: #163055;
+        transform: translateX(4px);
+    }
+
+    .footer-contact li {
+        display: flex;
+        gap: 10px;
+    }
+
+    /* =========================
+       COLORFUL SOCIAL ICONS
+    ========================= */
+
+    .footer-socials {
+        display: flex;
+        gap: 12px;
+        margin-top: 10px;
+    }
+
+    .footer-socials a {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+        transition: 0.3s;
+    }
+
+    /* 🌐 Website */
+    .footer-socials a:nth-child(1) {
+        background: #1f2937;
+    }
+
+    /* 📘 Facebook */
+    .footer-socials a:nth-child(2) {
+        background: #1877f2;
+    }
+
+    /* 📸 Instagram */
+    .footer-socials a:nth-child(3) {
+        background: linear-gradient(45deg, #feda75, #d62976, #962fbf, #4f5bd5);
+    }
+
+    /* 🌍 Chrome */
+    .footer-socials a:nth-child(4) {
+        background: conic-gradient(
+            red 0deg 120deg,
+            yellow 120deg 240deg,
+            green 240deg 360deg
+        );
+    }
+
+    /* Hover */
+    .footer-socials a:hover {
+        transform: translateY(-5px) scale(1.08);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    /* =========================
+       BOTTOM
+    ========================= */
+
+    .footer-bottom {
+        text-align: center;
+        margin-top: 30px;
+        border-top: 1px solid #ccc;
+        padding-top: 15px;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================= */
+
+    @media(max-width: 768px){
+        .footer-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    </style>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <div class="container">
+        <div class="footer-grid">
+
+            <div class="footer-column">
+                <h3 class="footer-heading">Nestify</h3>
+                <p class="footer-about">
+                    Nestify helps students discover trusted hostels, PGs, and tiffin services with a simple and safe experience.
+                </p>
+
+                <div class="footer-socials">
+                    <a href="#"><i class="fas fa-globe"></i></a>
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-chrome"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-column">
+                <h3 class="footer-heading">Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="tiffin.html">Tiffin</a></li>
+                    <li><a href="hostels.html">Hostels</a></li>
+                    <li><a href="feedback.html">Feedback</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3 class="footer-heading">Services</h3>
+                <ul class="footer-links">
+                    <li><a href="hostels.html">Student Hostels</a></li>
+                    <li><a href="tiffin.html">Tiffin Services</a></li>
+                    <li><a href="register.html">Sign Up</a></li>
+                    <li><a href="login.html">Login</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3 class="footer-heading">Contact</h3>
+                <ul class="footer-contact">
+                    <li>📧 nestifyn@gmail.com</li>
+                    <li>📞 +91 81768 45352</li>
+                    <li>📍 Lucknow, India</li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2026 Nestify. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+// Load services from API
+async function loadServices() {
+    try {
+        const response = await fetch(`${window.ENV_API_BASE}/data/services`);
+        const result = await response.json();
+        
+        if (result.success) {
+            const servicesContainer = document.getElementById('services-grid');
+            servicesContainer.innerHTML = '';
+            
+            // Define service images
+            const serviceImages = [
+                'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80',
+                'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80',
+                'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=1200&q=80',
+                'https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80'
+            ];
+            
+            result.data.forEach((service, index) => {
+                const serviceCard = `
+                    <div class="service-card image-card">
+                        <div class="service-image" style="background-image: url('${serviceImages[index]}');"></div>
+                        <div class="service-content">
+                            <div class="service-icon">${service.icon}</div>
+                            <h4>${service.title}</h4>
+                            <p>${service.desc}</p>
+                            <a href="#" class="service-link">Learn More</a>
+                        </div>
+                    </div>
+                `;
+                servicesContainer.innerHTML += serviceCard;
+            });
+        }
+    } catch (error) {
+        console.error('Error loading services:', error);
+        const servicesContainer = document.getElementById('services-grid');
+        servicesContainer.innerHTML = '<p>Failed to load services. Please try again later.</p>';
+    }
+}
+
+// Load services when page loads
+document.addEventListener("DOMContentLoaded", function () {
+    loadServices();
+});
+</script>
+
+</body>
+</html>

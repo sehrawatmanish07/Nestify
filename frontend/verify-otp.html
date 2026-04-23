@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nestify | Verify OTP</title>
+    <link rel="stylesheet" href="style.css?v=6">
+    <script src="config.js"></script>
+</head>
+<body>
+
+<section class="auth-page">
+    <div class="auth-overlay"></div>
+
+    <div class="auth-wrapper">
+        <div class="auth-left">
+            <div class="auth-brand">
+                <div class="auth-logo-circle">N</div>
+                <div>
+                    <h1>Nestify</h1>
+                    <p>Student Stay Solutions</p>
+                </div>
+            </div>
+
+            <span class="auth-tag">OTP VERIFICATION</span>
+            <h2>Verify your secure login code</h2>
+            <p class="auth-text">
+                We sent a one-time password to your email address.
+                Enter it below to continue securely.
+            </p>
+
+            <ul class="auth-features">
+                <li>Email-based secure verification</li>
+                <li>Fast and simple login process</li>
+                <li>Protected student dashboard access</li>
+            </ul>
+        </div>
+
+        <div class="auth-right">
+            <div class="auth-card">
+                <h3>Verify OTP</h3>
+                <p class="auth-subtitle">Enter OTP sent to your email</p>
+
+                <div id="error-message" class="auth-message" style="display: none;"></div>
+
+                <form id="verify-otp-form" class="auth-form">
+                    <div class="form-group">
+                        <label>OTP Code</label>
+                        <input type="text" name="otp" placeholder="Enter 6-digit OTP" maxlength="6" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-gold auth-btn">Verify OTP</button>
+                </form>
+
+                <div class="auth-links">
+                    <a href="login.html" class="back-home">← Back to Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+// Handle OTP verification form submission
+document.getElementById('verify-otp-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const otp = formData.get('otp');
+    
+    const errorDiv = document.getElementById('error-message');
+    
+    // Hide previous messages
+    errorDiv.style.display = 'none';
+    
+    try {
+        const response = await fetch(`${window.ENV_API_BASE}/otp/verify-otp`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ otp })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Save user info to localStorage
+            localStorage.setItem('user', JSON.stringify(result.user));
+            
+            // Redirect to index page
+            window.location.href = 'index.html';
+        } else {
+            errorDiv.textContent = result.message;
+            errorDiv.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('OTP verification error:', error);
+        errorDiv.textContent = 'Something went wrong. Please try again.';
+        errorDiv.style.display = 'block';
+    }
+});
+</script>
+
+</body>
+</html>
