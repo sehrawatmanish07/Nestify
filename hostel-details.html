@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nestify | Hostel Details</title>
     <link rel="stylesheet" href="style.css?v=6">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="config.js"></script>
 </head>
 <body>
@@ -25,9 +26,13 @@
             <a href="index.html">Home</a>
             <a href="tiffin.html">Tiffin</a>
             <a href="hostels.html">Hostels</a>
+            <a href="services.html">Services</a>
             <a href="feedback.html">Feedback</a>
             <a href="contact.html">Contact</a>
         </nav>
+
+        <!-- HAMBURGER MENU -->
+        <button class="nav-toggle" id="nav-toggle">&#9776;</button>
 
         <!-- BUTTON -->
         <div class="nav-action">
@@ -45,179 +50,6 @@
 
 <!-- Footer -->
 <footer class="site-footer">
-    <style>
-    /* =========================
-       PREMIUM FOOTER
-    ========================= */
-
-    .site-footer {
-        background: linear-gradient(135deg, #eee6d7, #e6ddcd);
-        border-top-left-radius: 34px;
-        border-top-right-radius: 34px;
-        padding: 70px 0 24px;
-        margin-top: 70px;
-        border-top: 1px solid rgba(0, 0, 0, 0.05);
-        box-shadow: 0 -10px 35px rgba(15, 23, 42, 0.04);
-    }
-
-    .site-footer .container {
-        width: min(92%, 1440px);
-        margin: 0 auto;
-    }
-
-    .footer-grid {
-        display: grid;
-        grid-template-columns: 1.2fr 1fr 1fr 1fr;
-        gap: 28px;
-    }
-
-    /* =========================
-       BORDER CARD STYLE
-    ========================= */
-
-    .footer-column {
-        background: rgba(255, 255, 255, 0.6);
-        padding: 20px 22px;
-        border-radius: 16px;
-        border: 1px solid rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        backdrop-filter: blur(8px);
-    }
-
-    .footer-column:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
-        border-color: rgba(0, 0, 0, 0.15);
-    }
-
-    /* =========================
-       TEXT + LINKS
-    ========================= */
-
-    .footer-heading {
-        font-size: 18px;
-        font-weight: 800;
-        color: #162b4a;
-        text-transform: uppercase;
-        position: relative;
-        padding-bottom: 8px;
-    }
-
-    .footer-heading::after {
-        content: "";
-        width: 40px;
-        height: 3px;
-        background: linear-gradient(90deg, #d6b36a, #bb9550);
-        position: absolute;
-        left: 0;
-        bottom: 0;
-        border-radius: 10px;
-    }
-
-    .footer-about {
-        color: #4b5563;
-        line-height: 1.8;
-    }
-
-    .footer-links,
-    .footer-contact {
-        list-style: none;
-        padding: 0;
-        display: grid;
-        gap: 12px;
-    }
-
-    .footer-links a {
-        color: #334155;
-        transition: 0.3s;
-    }
-
-    .footer-links a:hover {
-        color: #163055;
-        transform: translateX(4px);
-    }
-
-    .footer-contact li {
-        display: flex;
-        gap: 10px;
-    }
-
-    /* =========================
-       COLORFUL SOCIAL ICONS
-    ========================= */
-
-    .footer-socials {
-        display: flex;
-        gap: 12px;
-        margin-top: 10px;
-    }
-
-    .footer-socials a {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 18px;
-        transition: 0.3s;
-    }
-
-    /* 🌐 Website */
-    .footer-socials a:nth-child(1) {
-        background: #1f2937;
-    }
-
-    /* 📘 Facebook */
-    .footer-socials a:nth-child(2) {
-        background: #1877f2;
-    }
-
-    /* 📸 Instagram */
-    .footer-socials a:nth-child(3) {
-        background: linear-gradient(45deg, #feda75, #d62976, #962fbf, #4f5bd5);
-    }
-
-    /* 🌍 Chrome */
-    .footer-socials a:nth-child(4) {
-        background: conic-gradient(
-            red 0deg 120deg,
-            yellow 120deg 240deg,
-            green 240deg 360deg
-        );
-    }
-
-    /* Hover */
-    .footer-socials a:hover {
-        transform: translateY(-5px) scale(1.08);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    }
-
-    /* =========================
-       BOTTOM
-    ========================= */
-
-    .footer-bottom {
-        text-align: center;
-        margin-top: 30px;
-        border-top: 1px solid #ccc;
-        padding-top: 15px;
-    }
-
-    /* =========================
-       RESPONSIVE
-    ========================= */
-
-    @media(max-width: 768px){
-        .footer-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-    </style>
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <div class="container">
         <div class="footer-grid">
@@ -286,6 +118,13 @@ async function loadHostelDetails() {
         return;
     }
 
+    // Show loading state
+    document.getElementById('hostel-content').innerHTML = `
+        <div class="container" style="text-align: center; padding: 80px 0;">
+            <div class="loading-spinner">Loading hostel details...</div>
+        </div>
+    `;
+
     try {
         const response = await fetch(`${window.ENV_API_BASE}/data/hostels/${hostelId}`);
         const result = await response.json();
@@ -304,7 +143,7 @@ async function loadHostelDetails() {
 // Display hostel details
 function displayHostelDetails(hostel) {
     const content = `
-        <section class="hostel-detail-hero" style="background-image: url('${hostel.image}');">
+        <section class="hostel-detail-hero" style="background-image: url('${hostel.image || ''}'); background-color: #163055;">
             <div class="hostel-detail-overlay"></div>
             <div class="container hostel-detail-hero-content">
                 <span class="detail-badge">${hostel.tag}</span>
@@ -394,6 +233,11 @@ function showNotFound() {
 // Load hostel details when page loads
 document.addEventListener("DOMContentLoaded", function () {
     loadHostelDetails();
+    
+    // Mobile hamburger menu toggle
+    document.getElementById('nav-toggle').addEventListener('click', function() {
+        document.querySelector('.site-nav').classList.toggle('open');
+    });
 });
 </script>
 

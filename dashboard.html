@@ -4,22 +4,95 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nestify | Dashboard</title>
-    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="style.css?v=6">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="config.js"></script>
 </head>
 <body>
-<div class="container">
-    <h2>Dashboard</h2>
-    <div class="subtitle">You have logged in successfully</div>
 
-    <div class="dashboard-box">
-        <p><strong>Name:</strong> <span id="user-name">Loading...</span></p>
-        <p><strong>Email:</strong> <span id="user-email">Loading...</span></p>
-        <p><strong>Status:</strong> Logged In</p>
+<!-- Header -->
+<header class="site-header">
+    <div class="nav-wrapper">
+        <!-- LOGO -->
+        <div class="nav-logo">
+            <a href="index.html" class="logo-flex">
+                <img src="Email logo.png" alt="Nestify Logo" class="logo-img">
+                <span class="logo-text">Nestify</span>
+            </a>
+        </div>
+
+        <!-- NAVIGATION -->
+        <nav class="site-nav">
+            <a href="index.html">Home</a>
+            <a href="tiffin.html">Tiffin</a>
+            <a href="hostels.html">Hostels</a>
+            <a href="services.html">Services</a>
+            <a href="feedback.html">Feedback</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+
+        <!-- HAMBURGER MENU -->
+        <button class="nav-toggle" id="nav-toggle">&#9776;</button>
+
+        <!-- BUTTON -->
+        <div class="nav-action">
+            <a href="#" class="signup-btn">Dashboard</a>
+        </div>
     </div>
+</header>
 
-    <p><a href="#" id="logout-link">Logout</a></p>
-</div>
+<section class="inner-page-banner">
+    <div class="container">
+        <h1>My Dashboard</h1>
+        <p>Welcome to your student accommodation dashboard</p>
+    </div>
+</section>
+
+<section class="section-light">
+    <div class="container">
+        <div class="card-grid three-col">
+            <div class="image-card">
+                <div class="image-card-banner" style="background: linear-gradient(135deg, #163055, #4b89d6);">
+                    <div class="service-icon-large">👤</div>
+                </div>
+                <div class="image-card-body">
+                    <h3>User Information</h3>
+                    <div class="dashboard-info">
+                        <p><strong>Name:</strong> <span id="user-name">Loading...</span></p>
+                        <p><strong>Email:</strong> <span id="user-email">Loading...</span></p>
+                        <p><strong>Status:</strong> <span class="status-badge">Logged In</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="image-card">
+                <div class="image-card-banner" style="background: linear-gradient(135deg, #d6b36a, #bb9550);">
+                    <div class="service-icon-large">🏠</div>
+                </div>
+                <div class="image-card-body">
+                    <h3>Quick Actions</h3>
+                    <div class="dashboard-actions">
+                        <a href="hostels.html" class="btn btn-outline-dark">Browse Hostels</a>
+                        <a href="tiffin.html" class="btn btn-outline-dark">View Tiffin Plans</a>
+                        <a href="feedback.html" class="btn btn-outline-dark">Give Feedback</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="image-card">
+                <div class="image-card-banner" style="background: linear-gradient(135deg, #4aa8d3, #3187af);">
+                    <div class="service-icon-large">🚪</div>
+                </div>
+                <div class="image-card-body">
+                    <h3>Account</h3>
+                    <div class="dashboard-actions">
+                        <a href="#" id="logout-link" class="btn btn-gold">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <script>
 // Check if user is logged in
@@ -68,8 +141,72 @@ document.getElementById('logout-link').addEventListener('click', async function(
 // Check authentication when page loads
 document.addEventListener("DOMContentLoaded", function () {
     checkAuth();
+    
+    // Mobile hamburger menu toggle
+    document.getElementById('nav-toggle').addEventListener('click', function() {
+        document.querySelector('.site-nav').classList.toggle('open');
+    });
 });
 </script>
+
+<!-- Footer -->
+<footer class="site-footer">
+
+    <div class="container">
+        <div class="footer-grid">
+
+            <div class="footer-column">
+                <h3 class="footer-heading">Nestify</h3>
+                <p class="footer-about">
+                    Nestify helps students discover trusted hostels, PGs, and tiffin services with a simple and safe experience.
+                </p>
+
+                <div class="footer-socials">
+                    <a href="#"><i class="fas fa-globe"></i></a>
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-chrome"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-column">
+                <h3 class="footer-heading">Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="tiffin.html">Tiffin</a></li>
+                    <li><a href="hostels.html">Hostels</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="feedback.html">Feedback</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3 class="footer-heading">Services</h3>
+                <ul class="footer-links">
+                    <li><a href="hostels.html">Student Hostels</a></li>
+                    <li><a href="tiffin.html">Tiffin Services</a></li>
+                    <li><a href="register.html">Sign Up</a></li>
+                    <li><a href="login.html">Login</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3 class="footer-heading">Contact</h3>
+                <ul class="footer-contact">
+                    <li>📧 nestifyn@gmail.com</li>
+                    <li>📞 +91 81768 45352</li>
+                    <li>📍 Lucknow, India</li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2026 Nestify. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
 
 </body>
 </html>

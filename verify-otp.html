@@ -22,17 +22,17 @@
                 </div>
             </div>
 
-            <span class="auth-tag">OTP VERIFICATION</span>
-            <h2>Verify your secure login code</h2>
+            <span class="auth-tag">VERIFY YOUR EMAIL</span>
+            <h2>Secure your account with OTP verification</h2>
             <p class="auth-text">
-                We sent a one-time password to your email address.
-                Enter it below to continue securely.
+                Enter the 6-digit code sent to your email to complete your secure login.
+                Multi-factor authentication keeps your student account protected.
             </p>
 
             <ul class="auth-features">
-                <li>Email-based secure verification</li>
-                <li>Fast and simple login process</li>
-                <li>Protected student dashboard access</li>
+                <li>Enhanced security with OTP</li>
+                <li>One-time password protection</li>
+                <li>Secure student dashboard access</li>
             </ul>
         </div>
 
@@ -53,6 +53,7 @@
                 </form>
 
                 <div class="auth-links">
+                    <p>Didn't receive code? <a href="#" id="resend-otp">Resend OTP</a></p>
                     <a href="login.html" class="back-home">← Back to Login</a>
                 </div>
             </div>
@@ -88,8 +89,8 @@ document.getElementById('verify-otp-form').addEventListener('submit', async func
             // Save user info to localStorage
             localStorage.setItem('user', JSON.stringify(result.user));
             
-            // Redirect to index page
-            window.location.href = 'index.html';
+            // Redirect to dashboard page
+            window.location.href = 'dashboard.html';
         } else {
             errorDiv.textContent = result.message;
             errorDiv.style.display = 'block';
@@ -98,6 +99,42 @@ document.getElementById('verify-otp-form').addEventListener('submit', async func
         console.error('OTP verification error:', error);
         errorDiv.textContent = 'Something went wrong. Please try again.';
         errorDiv.style.display = 'block';
+    }
+});
+
+// Handle resend OTP
+document.getElementById('resend-otp').addEventListener('click', async function(e) {
+    e.preventDefault();
+    
+    try {
+        const response = await fetch(`${window.ENV_API_BASE}/otp/send-otp`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Show success message
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = 'OTP has been resent to your email.';
+            errorDiv.style.display = 'block';
+            errorDiv.className = 'auth-success';
+        } else {
+            // Show error message
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = result.message;
+            errorDiv.style.display = 'block';
+            errorDiv.className = 'auth-message';
+        }
+    } catch (error) {
+        console.error('Resend OTP error:', error);
+        const errorDiv = document.getElementById('error-message');
+        errorDiv.textContent = 'Something went wrong. Please try again.';
+        errorDiv.style.display = 'block';
+        errorDiv.className = 'auth-message';
     }
 });
 </script>
