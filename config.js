@@ -1,2 +1,2 @@
 // API Configuration
-window.ENV_API_BASE = 'http://localhost:5000/api';
+window.ENV_API_BASE = 'https://nestify-backend-pkia.onrender.com/api';
