@@ -74,6 +74,8 @@ document.getElementById('verify-otp-form').addEventListener('submit', async func
     // Hide previous messages
     errorDiv.style.display = 'none';
     
+    const tempToken = localStorage.getItem('tempToken');
+    
     try {
         const response = await fetch(`${window.ENV_API_BASE}/otp/verify-otp`, {
             method: 'POST',
@@ -81,13 +83,14 @@ document.getElementById('verify-otp-form').addEventListener('submit', async func
                 'Content-Type': 'application/json'
             },
             credentials: 'include',
-            body: JSON.stringify({ otp })
+            body: JSON.stringify({ otp, tempToken })
         });
         
         const result = await response.json();
         
         if (result.success) {
-            // Save user info to localStorage
+            // Clear tempToken and save user info
+            localStorage.removeItem('tempToken');
             localStorage.setItem('user', JSON.stringify(result.user));
             
             // Redirect to dashboard page
@@ -107,13 +110,16 @@ document.getElementById('verify-otp-form').addEventListener('submit', async func
 document.getElementById('resend-otp').addEventListener('click', async function(e) {
     e.preventDefault();
     
+    const tempToken = localStorage.getItem('tempToken');
+    
     try {
         const response = await fetch(`${window.ENV_API_BASE}/otp/send-otp`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            credentials: 'include'
+            credentials: 'include',
+            body: JSON.stringify({ tempToken })
         });
         
         const result = await response.json();

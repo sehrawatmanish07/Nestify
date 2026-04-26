@@ -99,8 +99,10 @@ document.getElementById('login-form').addEventListener('submit', async function(
             successDiv.textContent = result.message;
             successDiv.style.display = 'block';
             
-            const otpSent = await sendOTP();
+            // Save tempToken for OTP step
+            localStorage.setItem('tempToken', result.tempToken);
             
+            const otpSent = await sendOTP(result.tempToken);
             if (otpSent) {
                 setTimeout(() => {
                     window.location.href = 'verify-otp.html';
@@ -119,17 +121,17 @@ document.getElementById('login-form').addEventListener('submit', async function(
     }
 });
 
-async function sendOTP() {
+async function sendOTP(tempToken) {
     try {
         const response = await fetch(`${window.ENV_API_BASE}/otp/send-otp`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            credentials: 'include'
+            credentials: 'include',
+            body: JSON.stringify({ tempToken })
         });
 
         const result = await response.json();
-        console.log('OTP response status:', response.status);
-        console.log('OTP response result:', result);
+        console.log('OTP response:', result);
 
         if (!result.success) {
             const errorDiv = document.getElementById('error-message');
