@@ -99,13 +99,15 @@ document.getElementById('login-form').addEventListener('submit', async function(
             successDiv.textContent = result.message;
             successDiv.style.display = 'block';
             
-            // Send OTP
-            await sendOTP();
+            const otpSent = await sendOTP();
             
-            // Redirect to OTP verification page after a short delay
-            setTimeout(() => {
-                window.location.href = 'verify-otp.html';
-            }, 1500);
+            if (otpSent) {
+                setTimeout(() => {
+                    window.location.href = 'verify-otp.html';
+                }, 1500);
+            }
+            // If otpSent is false, error message is already shown
+            // and we do NOT redirect
         } else {
             errorDiv.textContent = result.message;
             errorDiv.style.display = 'block';
@@ -117,21 +119,32 @@ document.getElementById('login-form').addEventListener('submit', async function(
     }
 });
 
-// Send OTP function
 async function sendOTP() {
     try {
         const response = await fetch(`${window.ENV_API_BASE}/otp/send-otp`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             credentials: 'include'
         });
-        
+
         const result = await response.json();
-        return result.success;
+        console.log('OTP response status:', response.status);
+        console.log('OTP response result:', result);
+
+        if (!result.success) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = 'OTP failed: ' + result.message;
+            errorDiv.style.display = 'block';
+            return false;
+        }
+
+        return true;
+
     } catch (error) {
-        console.error('Send OTP error:', error);
+        console.error('Send OTP fetch error:', error);
+        const errorDiv = document.getElementById('error-message');
+        errorDiv.textContent = 'OTP error: ' + error.message;
+        errorDiv.style.display = 'block';
         return false;
     }
 }
