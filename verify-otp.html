@@ -80,6 +80,7 @@ document.getElementById('verify-otp-form').addEventListener('submit', async func
             headers: {
                 'Content-Type': 'application/json'
             },
+            credentials: 'include',
             body: JSON.stringify({ otp })
         });
         
@@ -111,7 +112,8 @@ document.getElementById('resend-otp').addEventListener('click', async function(e
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
+            credentials: 'include'
         });
         
         const result = await response.json();

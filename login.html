@@ -89,6 +89,7 @@ document.getElementById('login-form').addEventListener('submit', async function(
             headers: {
                 'Content-Type': 'application/json'
             },
+            credentials: 'include',
             body: JSON.stringify({ email, password })
         });
         
@@ -123,7 +124,8 @@ async function sendOTP() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
+            credentials: 'include'
         });
         
         const result = await response.json();
