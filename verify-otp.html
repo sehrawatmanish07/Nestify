@@ -214,6 +214,7 @@ document.getElementById('resend-otp').addEventListener('click', async function(e
         const apiBaseUrl = getApiBaseUrl();
         
         debugLog('Making resend OTP request to', `${apiBaseUrl}/otp/send-otp`);
+        debugLog('Using tempToken for resend', tempToken);
         
         const response = await fetch(`${apiBaseUrl}/otp/send-otp`, {
             method: 'POST',
@@ -225,6 +226,16 @@ document.getElementById('resend-otp').addEventListener('click', async function(e
         });
         
         debugLog('Resend OTP response status', response.status);
+        debugLog('Resend OTP response headers', response.headers);
+
+        // Handle 500 server errors specifically
+        if (response.status === 500) {
+            errorDiv.textContent = 'Server error (OTP failed)';
+            errorDiv.style.display = 'block';
+            errorDiv.className = 'auth-message';
+            debugLog('Resend OTP 500 server error');
+            return;
+        }
         
         // Handle non-JSON responses safely
         let result;
@@ -236,6 +247,8 @@ document.getElementById('resend-otp').addEventListener('click', async function(e
         }
         
         debugLog('Resend OTP response received', result);
+        debugLog('Resend OTP response success', result.success);
+        debugLog('Resend OTP response message', result.message);
         
         if (result.success) {
             // Show success message
@@ -244,25 +257,35 @@ document.getElementById('resend-otp').addEventListener('click', async function(e
             errorDiv.className = 'auth-success';
             debugLog('Resend OTP successful');
         } else {
-            // Show error message
-            const errorMessage = result.message || 'Failed to resend OTP. Please try again.';
+            // Show EXACT backend error message - no fallback
+            const errorMessage = result.message || 'Resend OTP failed without error message';
             errorDiv.textContent = errorMessage;
             errorDiv.style.display = 'block';
             errorDiv.className = 'auth-message';
-            debugLog('Resend OTP failed', errorMessage);
+            debugLog('Resend OTP failed - exact error', errorMessage);
         }
     } catch (error) {
         console.error('Resend OTP error:', error);
+        debugLog('Resend OTP catch error details', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+        });
+        
         let errorMessage;
         if (error.message.includes('fetch')) {
             errorMessage = 'Network error. Please check your internet connection.';
+        } else if (error.message.includes('500')) {
+            errorMessage = 'Server error (OTP failed)';
         } else {
-            errorMessage = error.message || 'Failed to resend OTP. Please try again.';
+            // Show exact error message from backend
+            errorMessage = error.message || 'Email service failed. Contact support.';
         }
+        
         errorDiv.textContent = errorMessage;
         errorDiv.style.display = 'block';
         errorDiv.className = 'auth-message';
-        debugLog('Resend OTP catch error', error);
+        debugLog('Resend OTP catch error - showing to user', errorMessage);
     } finally {
         // Reset loading state
         resendLink.dataset.resending = 'false';

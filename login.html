@@ -190,6 +190,18 @@ async function sendOTP(tempToken) {
         });
 
         debugLog('OTP API response status', response.status);
+        debugLog('OTP API response headers', response.headers);
+
+        // Handle 500 server errors specifically
+        if (response.status === 500) {
+            const errorDiv = document.getElementById('error-message');
+            const successDiv = document.getElementById('success-message');
+            successDiv.style.display = 'none';
+            errorDiv.textContent = 'Server error (OTP failed)';
+            errorDiv.style.display = 'block';
+            debugLog('OTP 500 server error');
+            return false;
+        }
 
         // Handle non-JSON responses safely
         let result;
@@ -201,6 +213,8 @@ async function sendOTP(tempToken) {
         }
 
         debugLog('OTP API response received', result);
+        debugLog('OTP API response success', result.success);
+        debugLog('OTP API response message', result.message);
 
         if (!result.success) {
             const errorDiv = document.getElementById('error-message');
@@ -209,12 +223,12 @@ async function sendOTP(tempToken) {
             // Hide success message
             successDiv.style.display = 'none';
             
-            // Show specific error message
-            const errorMessage = result.message || 'Email service failed. Contact support.';
+            // Show EXACT backend error message - no fallback
+            const errorMessage = result.message || 'OTP failed without error message';
             errorDiv.textContent = errorMessage;
             errorDiv.style.display = 'block';
             
-            debugLog('OTP sending failed', errorMessage);
+            debugLog('OTP sending failed - exact error', errorMessage);
             return false;
         }
 
@@ -223,24 +237,33 @@ async function sendOTP(tempToken) {
 
     } catch (error) {
         console.error('Send OTP fetch error:', error);
+        debugLog('OTP catch error details', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+        });
+        
         const errorDiv = document.getElementById('error-message');
         const successDiv = document.getElementById('success-message');
         
         // Hide success message
         successDiv.style.display = 'none';
         
-        // Show clear error message
+        // Show clear error message with exact error details
         let errorMessage;
         if (error.message.includes('fetch')) {
             errorMessage = 'Network error. Please check your internet connection.';
+        } else if (error.message.includes('500')) {
+            errorMessage = 'Server error (OTP failed)';
         } else {
+            // Show exact error message from backend
             errorMessage = error.message || 'Email service failed. Contact support.';
         }
         
         errorDiv.textContent = errorMessage;
         errorDiv.style.display = 'block';
         
-        debugLog('OTP catch error', error);
+        debugLog('OTP catch error - showing to user', errorMessage);
         return false;
     }
 }
