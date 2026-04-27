@@ -145,6 +145,8 @@ async function sendOTP(tempToken) {
     } catch (error) {
         console.error('Send OTP fetch error:', error);
         const errorDiv = document.getElementById('error-message');
+        const successDiv = document.getElementById('success-message');
+        successDiv.style.display = 'none';
         errorDiv.textContent = 'OTP error: ' + error.message;
         errorDiv.style.display = 'block';
         return false;
@@ -152,5 +154,7 @@ async function sendOTP(tempToken) {
 }
 </script>
 
+</body>
+</html>
 </body>
 </html>
