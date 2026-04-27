@@ -62,22 +62,72 @@
 </section>
 
 <script>
+// Debug mode - set to true for detailed console logging
+const DEBUG_MODE = true;
+
+// Get API base URL with fallback
+function getApiBaseUrl() {
+    if (window.ENV_API_BASE) {
+        return window.ENV_API_BASE;
+    }
+    // Fallback for development
+    return 'http://localhost:3000/api';
+}
+
+// Debug logging function
+function debugLog(message, data = null) {
+    if (DEBUG_MODE) {
+        console.log(`[OTP DEBUG] ${message}`, data || '');
+    }
+}
+
+// Check tempToken and redirect if missing
+function checkTempToken() {
+    const tempToken = localStorage.getItem('tempToken');
+    debugLog('Checking tempToken', tempToken);
+    
+    if (!tempToken) {
+        debugLog('tempToken missing, redirecting to login');
+        alert('Session expired. Please login again.');
+        window.location.href = 'login.html';
+        return false;
+    }
+    return true;
+}
+
 // Handle OTP verification form submission
 document.getElementById('verify-otp-form').addEventListener('submit', async function(e) {
     e.preventDefault();
+    
+    // Check tempToken first
+    if (!checkTempToken()) {
+        return;
+    }
     
     const formData = new FormData(this);
     const otp = formData.get('otp');
     
     const errorDiv = document.getElementById('error-message');
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn.textContent;
+    
+    debugLog('OTP verification submitted', { otp });
     
     // Hide previous messages
     errorDiv.style.display = 'none';
+    errorDiv.className = 'auth-message';
     
-    const tempToken = localStorage.getItem('tempToken');
+    // Disable button and change text
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Verifying…';
     
     try {
-        const response = await fetch(`${window.ENV_API_BASE}/otp/verify-otp`, {
+        const tempToken = localStorage.getItem('tempToken');
+        const apiBaseUrl = getApiBaseUrl();
+        
+        debugLog('Making OTP verification request to', `${apiBaseUrl}/otp/verify-otp`);
+        
+        const response = await fetch(`${apiBaseUrl}/otp/verify-otp`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -86,23 +136,46 @@ document.getElementById('verify-otp-form').addEventListener('submit', async func
             body: JSON.stringify({ otp, tempToken })
         });
         
-        const result = await response.json();
+        debugLog('OTP verification response status', response.status);
+        
+        // Handle non-JSON responses safely
+        let result;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            result = await response.json();
+        } else {
+            throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        }
+        
+        debugLog('OTP verification response received', result);
         
         if (result.success) {
+            debugLog('OTP verification successful');
+            
             // Clear tempToken and save user info
             localStorage.removeItem('tempToken');
             localStorage.setItem('user', JSON.stringify(result.user));
+            debugLog('User data saved', result.user);
             
             // Redirect to dashboard page
             window.location.href = 'dashboard.html';
         } else {
-            errorDiv.textContent = result.message;
+            const errorMessage = result.message || 'Invalid OTP. Please try again.';
+            errorDiv.textContent = errorMessage;
             errorDiv.style.display = 'block';
+            debugLog('OTP verification failed', errorMessage);
         }
     } catch (error) {
         console.error('OTP verification error:', error);
-        errorDiv.textContent = 'Something went wrong. Please try again.';
+        const errorMessage = error.message || 'Network error. Please check your connection and try again.';
+        errorDiv.textContent = errorMessage;
         errorDiv.style.display = 'block';
+        debugLog('OTP verification catch error', error);
+    } finally {
+        // Re-enable button and restore text
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
+        debugLog('OTP verification completed, button re-enabled');
     }
 });
 
@@ -110,10 +183,39 @@ document.getElementById('verify-otp-form').addEventListener('submit', async func
 document.getElementById('resend-otp').addEventListener('click', async function(e) {
     e.preventDefault();
     
+    // Check tempToken first
+    if (!checkTempToken()) {
+        return;
+    }
+    
     const tempToken = localStorage.getItem('tempToken');
+    const errorDiv = document.getElementById('error-message');
+    const resendLink = this;
+    let isResending = resendLink.dataset.resending === 'true';
+    
+    // Prevent spam clicking
+    if (isResending) {
+        debugLog('Resend OTP already in progress, ignoring click');
+        return;
+    }
+    
+    debugLog('Resend OTP requested');
+    
+    // Hide previous messages
+    errorDiv.style.display = 'none';
+    errorDiv.className = 'auth-message';
+    
+    // Set loading state
+    resendLink.dataset.resending = 'true';
+    resendLink.textContent = 'Sending...';
+    resendLink.style.pointerEvents = 'none';
     
     try {
-        const response = await fetch(`${window.ENV_API_BASE}/otp/send-otp`, {
+        const apiBaseUrl = getApiBaseUrl();
+        
+        debugLog('Making resend OTP request to', `${apiBaseUrl}/otp/send-otp`);
+        
+        const response = await fetch(`${apiBaseUrl}/otp/send-otp`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -122,28 +224,57 @@ document.getElementById('resend-otp').addEventListener('click', async function(e
             body: JSON.stringify({ tempToken })
         });
         
-        const result = await response.json();
+        debugLog('Resend OTP response status', response.status);
+        
+        // Handle non-JSON responses safely
+        let result;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            result = await response.json();
+        } else {
+            throw new Error(`Email service returned ${response.status}: ${response.statusText}`);
+        }
+        
+        debugLog('Resend OTP response received', result);
         
         if (result.success) {
             // Show success message
-            const errorDiv = document.getElementById('error-message');
             errorDiv.textContent = 'OTP has been resent to your email.';
             errorDiv.style.display = 'block';
             errorDiv.className = 'auth-success';
+            debugLog('Resend OTP successful');
         } else {
             // Show error message
-            const errorDiv = document.getElementById('error-message');
-            errorDiv.textContent = result.message;
+            const errorMessage = result.message || 'Failed to resend OTP. Please try again.';
+            errorDiv.textContent = errorMessage;
             errorDiv.style.display = 'block';
             errorDiv.className = 'auth-message';
+            debugLog('Resend OTP failed', errorMessage);
         }
     } catch (error) {
         console.error('Resend OTP error:', error);
-        const errorDiv = document.getElementById('error-message');
-        errorDiv.textContent = 'Something went wrong. Please try again.';
+        let errorMessage;
+        if (error.message.includes('fetch')) {
+            errorMessage = 'Network error. Please check your internet connection.';
+        } else {
+            errorMessage = error.message || 'Failed to resend OTP. Please try again.';
+        }
+        errorDiv.textContent = errorMessage;
         errorDiv.style.display = 'block';
         errorDiv.className = 'auth-message';
+        debugLog('Resend OTP catch error', error);
+    } finally {
+        // Reset loading state
+        resendLink.dataset.resending = 'false';
+        resendLink.textContent = 'Resend OTP';
+        resendLink.style.pointerEvents = 'auto';
+        debugLog('Resend OTP completed, link re-enabled');
     }
+});
+
+// Check tempToken on page load
+document.addEventListener('DOMContentLoaded', function() {
+    checkTempToken();
 });
 </script>
 

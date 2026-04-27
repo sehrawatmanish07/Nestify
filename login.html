@@ -68,6 +68,25 @@
 </section>
 
 <script>
+// Debug mode - set to true for detailed console logging
+const DEBUG_MODE = true;
+
+// Get API base URL with fallback
+function getApiBaseUrl() {
+    if (window.ENV_API_BASE) {
+        return window.ENV_API_BASE;
+    }
+    // Fallback for development
+    return 'http://localhost:3000/api';
+}
+
+// Debug logging function
+function debugLog(message, data = null) {
+    if (DEBUG_MODE) {
+        console.log(`[OTP DEBUG] ${message}`, data || '');
+    }
+}
+
 // Handle login form submission
 document.getElementById('login-form').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -78,13 +97,24 @@ document.getElementById('login-form').addEventListener('submit', async function(
     
     const errorDiv = document.getElementById('error-message');
     const successDiv = document.getElementById('success-message');
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn.textContent;
+    
+    debugLog('Login form submitted', { email });
     
     // Hide previous messages
     errorDiv.style.display = 'none';
     successDiv.style.display = 'none';
     
+    // Disable button and change text
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Logging in…';
+    
     try {
-        const response = await fetch(`${window.ENV_API_BASE}/auth/login`, {
+        const apiBaseUrl = getApiBaseUrl();
+        debugLog('Making login request to', `${apiBaseUrl}/auth/login`);
+        
+        const response = await fetch(`${apiBaseUrl}/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -93,62 +123,124 @@ document.getElementById('login-form').addEventListener('submit', async function(
             body: JSON.stringify({ email, password })
         });
         
-        const result = await response.json();
+        // Handle non-JSON responses safely
+        let result;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            result = await response.json();
+        } else {
+            throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        }
         
-        if (result.success) {
-            successDiv.textContent = result.message;
+        debugLog('Login response received', result);
+        
+        if (result.success && result.tempToken) {
+            successDiv.textContent = result.message || 'Login successful. Sending OTP...';
             successDiv.style.display = 'block';
             
             // Save tempToken for OTP step
             localStorage.setItem('tempToken', result.tempToken);
+            debugLog('tempToken saved', result.tempToken);
             
             const otpSent = await sendOTP(result.tempToken);
+            debugLog('OTP send result', otpSent);
+            
             if (otpSent) {
+                // Show success message before redirect
+                successDiv.textContent = 'OTP sent successfully! Redirecting...';
                 setTimeout(() => {
                     window.location.href = 'verify-otp.html';
                 }, 1500);
+            } else {
+                // OTP failed - button is re-enabled in sendOTP function
+                debugLog('OTP sending failed, not redirecting');
             }
-            // If otpSent is false, error message is already shown
-            // and we do NOT redirect
         } else {
-            errorDiv.textContent = result.message;
+            // Login failed
+            const errorMessage = result.message || 'Login failed. Please check your credentials.';
+            errorDiv.textContent = errorMessage;
             errorDiv.style.display = 'block';
+            debugLog('Login failed', errorMessage);
         }
     } catch (error) {
         console.error('Login error:', error);
-        errorDiv.textContent = 'Something went wrong. Please try again.';
+        const errorMessage = error.message || 'Network error. Please check your connection and try again.';
+        errorDiv.textContent = errorMessage;
         errorDiv.style.display = 'block';
+        debugLog('Login catch error', error);
+    } finally {
+        // Re-enable button and restore text
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
+        debugLog('Form submission completed, button re-enabled');
     }
 });
 
 async function sendOTP(tempToken) {
     try {
-        const response = await fetch(`${window.ENV_API_BASE}/otp/send-otp`, {
+        const apiBaseUrl = getApiBaseUrl();
+        debugLog('Sending OTP request to', `${apiBaseUrl}/otp/send-otp`);
+        debugLog('Using tempToken', tempToken);
+        
+        const response = await fetch(`${apiBaseUrl}/otp/send-otp`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
             body: JSON.stringify({ tempToken })
         });
 
-        const result = await response.json();
-        console.log('OTP response:', result);
+        debugLog('OTP API response status', response.status);
+
+        // Handle non-JSON responses safely
+        let result;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            result = await response.json();
+        } else {
+            throw new Error(`Email service returned ${response.status}: ${response.statusText}`);
+        }
+
+        debugLog('OTP API response received', result);
 
         if (!result.success) {
             const errorDiv = document.getElementById('error-message');
-            errorDiv.textContent = 'OTP failed: ' + result.message;
+            const successDiv = document.getElementById('success-message');
+            
+            // Hide success message
+            successDiv.style.display = 'none';
+            
+            // Show specific error message
+            const errorMessage = result.message || 'Email service failed. Contact support.';
+            errorDiv.textContent = errorMessage;
             errorDiv.style.display = 'block';
+            
+            debugLog('OTP sending failed', errorMessage);
             return false;
         }
 
+        debugLog('OTP sent successfully');
         return true;
 
     } catch (error) {
         console.error('Send OTP fetch error:', error);
         const errorDiv = document.getElementById('error-message');
         const successDiv = document.getElementById('success-message');
+        
+        // Hide success message
         successDiv.style.display = 'none';
-        errorDiv.textContent = 'OTP error: ' + error.message;
+        
+        // Show clear error message
+        let errorMessage;
+        if (error.message.includes('fetch')) {
+            errorMessage = 'Network error. Please check your internet connection.';
+        } else {
+            errorMessage = error.message || 'Email service failed. Contact support.';
+        }
+        
+        errorDiv.textContent = errorMessage;
         errorDiv.style.display = 'block';
+        
+        debugLog('OTP catch error', error);
         return false;
     }
 }
