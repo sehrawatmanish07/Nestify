@@ -88,6 +88,7 @@ img {
     display: flex;
     align-items: center;
     gap: 38px;
+    
 }
 
 .site-nav a {
@@ -124,6 +125,7 @@ img {
     display: flex;
     align-items: center;
     gap: 12px;
+    margin-left: auto;
 }
 
 .signup-btn {
@@ -139,6 +141,8 @@ img {
     font-weight: 700;
     transition: 0.3s ease;
     box-shadow: 0 12px 28px rgba(27, 54, 93, 0.18);
+    position: absolute;
+     right: 20px;
 }
 
 .signup-btn:hover {
