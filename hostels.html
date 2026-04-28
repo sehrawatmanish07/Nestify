@@ -211,11 +211,7 @@ async function loadHostels() {
                 const hostelCard = `
                     <div class="image-card">
                         <!-- IMAGE -->
-                        <div class="image-card-banner hostel-bg">
-                            <span class="overlay-badge">${item.tag}</span>
-
-                            <!-- Overlay text -->
-                            <div class="image-overlay-text">
+                            <div class="image-card-banner hostel-bg" style="background-image: url('${item.image}');">
                                 <h4>${item.name}</h4>
                                 <p>${item.location}</p>
                             </div>
