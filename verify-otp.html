@@ -151,14 +151,25 @@ document.getElementById('verify-otp-form').addEventListener('submit', async func
         
         if (result.success) {
             debugLog('OTP verification successful');
-            
-            // Clear tempToken and save user info
+
+            // Save user data
             localStorage.removeItem('tempToken');
             localStorage.setItem('user', JSON.stringify(result.user));
             debugLog('User data saved', result.user);
-            
-            // Redirect to dashboard page
-            window.location.href = 'dashboard.html';
+
+            // Show success popup
+            const popup = document.getElementById('success-popup');
+            popup.style.display = 'flex';
+
+            // Start progress bar animation
+            setTimeout(() => {
+                document.getElementById('popup-progress').style.width = '100%';
+            }, 50);
+
+            // Redirect after 3 seconds
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 3000);
         } else {
             const errorMessage = result.message || 'Invalid OTP. Please try again.';
             errorDiv.textContent = errorMessage;
@@ -300,6 +311,31 @@ document.addEventListener('DOMContentLoaded', function() {
     checkTempToken();
 });
 </script>
+
+<!-- Success Popup -->
+<div id="success-popup" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); 
+z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:#fff; border-radius:16px; padding:40px 32px; max-width:400px; 
+    width:90%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.3); animation: popIn 0.3s ease;">
+        <div style="font-size:56px; margin-bottom:16px;">🎉</div>
+        <h2 style="color:#163055; margin-bottom:10px; font-size:22px;">Login Successful!</h2>
+        <p style="color:#555; font-size:15px; line-height:1.6; margin-bottom:20px;">
+            Welcome to Nestify! You are now securely logged in.<br>
+            Redirecting you to your dashboard...
+        </p>
+        <div style="width:100%; background:#eee; border-radius:99px; height:4px; overflow:hidden;">
+            <div id="popup-progress" style="height:4px; background:#163055; width:0%; 
+            border-radius:99px; transition:width 3s linear;"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes popIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+}
+</style>
 
 </body>
 </html>
