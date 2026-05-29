@@ -166,10 +166,10 @@ document.getElementById('verify-otp-form').addEventListener('submit', async func
                 document.getElementById('popup-progress').style.width = '100%';
             }, 50);
 
-            // Redirect after 3 seconds
+            // Redirect after 4 seconds (1 second after the 3s progress bar finishes)
             setTimeout(() => {
                 window.location.href = 'dashboard.html';
-            }, 3000);
+            }, 4000);
         } else {
             const errorMessage = result.message || 'Invalid OTP. Please try again.';
             errorDiv.textContent = errorMessage;
@@ -325,7 +325,7 @@ z-index:9999; justify-content:center; align-items:center;">
         </p>
         <div style="width:100%; background:#eee; border-radius:99px; height:4px; overflow:hidden;">
             <div id="popup-progress" style="height:4px; background:#163055; width:0%; 
-            border-radius:99px; transition:width 5s linear;"></div>
+            border-radius:99px; transition:width 3s linear;"></div>
         </div>
     </div>
 </div>
