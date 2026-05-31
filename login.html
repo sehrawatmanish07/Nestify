@@ -438,8 +438,9 @@ document.getElementById('owner-login-form')
     submitBtn.textContent = 'Logging in...';
     
     try {
+      const apiBaseUrl = getApiBaseUrl();
       const response = await fetch(
-        `${window.ENV_API_BASE}/owner/login`, {
+        `${apiBaseUrl}/owner/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
