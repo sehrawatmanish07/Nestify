@@ -450,6 +450,10 @@ document.getElementById('owner-login-form')
       const result = await response.json();
       
       if (result.success) {
+        const ownerData = result.owner || { email };
+        localStorage.setItem('owner', JSON.stringify(ownerData));
+        localStorage.setItem('tempToken', result.tempToken || '');
+
         successDiv.textContent = 'Login successful! Redirecting to dashboard...';
         successDiv.style.display = 'block';
         setTimeout(() => {
