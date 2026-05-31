@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nestify | Owner Verify OTP</title>
+    <link rel="stylesheet" href="style.css?v=6">
+    <script src="config.js"></script>
+</head>
+<body>
+
+<section class="auth-page">
+    <div class="auth-overlay"></div>
+
+    <div class="auth-wrapper">
+        <div class="auth-left">
+            <div class="auth-brand">
+                <div class="auth-logo-circle">N</div>
+                <div>
+                    <h1>Nestify</h1>
+                    <p>Student Stay Solutions</p>
+                </div>
+            </div>
+
+            <span class="auth-tag">VERIFY YOUR EMAIL</span>
+            <h2>Verify your owner account with OTP</h2>
+            <p class="auth-text">
+                Enter the 6-digit code sent to your email to complete owner login.
+                Multi-factor authentication keeps your owner account protected.
+            </p>
+
+            <ul class="auth-features">
+                <li>Secure OTP verification</li>
+                <li>One-time password protection</li>
+                <li>Access your owner dashboard</li>
+            </ul>
+        </div>
+
+        <div class="auth-right">
+            <div class="auth-card">
+                <h3>Verify OTP</h3>
+                <p class="auth-subtitle">Enter OTP sent to your email</p>
+
+                <div id="error-message" class="auth-message" style="display: none;"></div>
+
+                <form id="verify-otp-form" class="auth-form">
+                    <div class="form-group">
+                        <label>OTP Code</label>
+                        <input type="text" name="otp" placeholder="Enter 6-digit OTP" maxlength="6" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-gold auth-btn">Verify OTP</button>
+                </form>
+
+                <div class="auth-links">
+                    <p>Didn't receive code? <a href="#" id="resend-otp">Resend OTP</a></p>
+                    <a href="login.html" class="back-home">← Back to Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+// Debug mode - set to true for detailed console logging
+const DEBUG_MODE = true;
+
+// Get API base URL with fallback
+function getApiBaseUrl() {
+    if (window.ENV_API_BASE) {
+        return window.ENV_API_BASE;
+    }
+    // Fallback for development
+    return 'http://localhost:3000/api';
+}
+
+// Debug logging function
+function debugLog(message, data = null) {
+    if (DEBUG_MODE) {
+        console.log(`[OWNER] ${message}`, data || '');
+    }
+}
+
+// Check tempToken and redirect if missing
+function checkTempToken() {
+    const tempToken = localStorage.getItem('tempToken');
+    debugLog('Checking tempToken', tempToken);
+    
+    if (!tempToken) {
+        debugLog('tempToken missing, redirecting to login');
+        alert('Session expired. Please login again.');
+        window.location.href = 'login.html';
+        return false;
+    }
+    return true;
+}
+
+// Handle OTP verification form submission
+document.getElementById('verify-otp-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    // Check tempToken first
+    if (!checkTempToken()) {
+        return;
+    }
+    
+    const formData = new FormData(this);
+    const otp = formData.get('otp');
+    
+    const errorDiv = document.getElementById('error-message');
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn.textContent;
+    
+    debugLog('OTP verification submitted', { otp });
+    
+    // Hide previous messages
+    errorDiv.style.display = 'none';
+    errorDiv.className = 'auth-message';
+    
+    // Disable button and change text
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Verifying…';
+    
+    try {
+        const tempToken = localStorage.getItem('tempToken');
+        const apiBaseUrl = getApiBaseUrl();
+        
+        debugLog('Making OTP verification request to', `${apiBaseUrl}/otp/verify-otp`);
+        
+        const response = await fetch(`${apiBaseUrl}/otp/verify-otp`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({ otp, tempToken })
+        });
+        
+        debugLog('OTP verification response status', response.status);
+        
+        // Handle non-JSON responses safely
+        let result;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            result = await response.json();
+        } else {
+            throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        }
+        
+        debugLog('OTP verification response received', result);
+        
+        if (result.success) {
+            debugLog('OTP verification successful');
+
+            // Save owner data
+            localStorage.removeItem('tempToken');
+            localStorage.setItem('owner', JSON.stringify(result.user));
+            debugLog('Owner data saved', result.user);
+
+            // Show success popup
+            const popup = document.getElementById('success-popup');
+            popup.style.display = 'flex';
+
+            // Start progress bar animation
+            setTimeout(() => {
+                document.getElementById('popup-progress').style.width = '100%';
+            }, 50);
+
+            // Redirect after 3 seconds
+            setTimeout(() => {
+                window.location.href = 'owner-dashboard.html';
+            }, 3000);
+        } else {
+            const errorMessage = result.message || 'Invalid OTP. Please try again.';
+            errorDiv.textContent = errorMessage;
+            errorDiv.style.display = 'block';
+            debugLog('OTP verification failed', errorMessage);
+        }
+    } catch (error) {
+        console.error('OTP verification error:', error);
+        const errorMessage = error.message || 'Network error. Please check your connection and try again.';
+        errorDiv.textContent = errorMessage;
+        errorDiv.style.display = 'block';
+        debugLog('OTP verification catch error', error);
+    } finally {
+        // Re-enable button and restore text
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
+        debugLog('OTP verification completed, button re-enabled');
+    }
+});
+
+// Handle resend OTP
+document.getElementById('resend-otp').addEventListener('click', async function(e) {
+    e.preventDefault();
+    
+    // Check tempToken first
+    if (!checkTempToken()) {
+        return;
+    }
+    
+    const tempToken = localStorage.getItem('tempToken');
+    const errorDiv = document.getElementById('error-message');
+    const resendLink = this;
+    let isResending = resendLink.dataset.resending === 'true';
+    
+    // Prevent spam clicking
+    if (isResending) {
+        debugLog('Resend OTP already in progress, ignoring click');
+        return;
+    }
+    
+    debugLog('Resend OTP requested');
+    
+    // Hide previous messages
+    errorDiv.style.display = 'none';
+    errorDiv.className = 'auth-message';
+    
+    // Set loading state
+    resendLink.dataset.resending = 'true';
+    resendLink.textContent = 'Sending...';
+    resendLink.style.pointerEvents = 'none';
+    
+    try {
+        const apiBaseUrl = getApiBaseUrl();
+        
+        debugLog('Making resend OTP request to', `${apiBaseUrl}/otp/send-otp`);
+        debugLog('Using tempToken for resend', tempToken);
+        
+        const response = await fetch(`${apiBaseUrl}/otp/send-otp`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({ tempToken })
+        });
+        
+        debugLog('Resend OTP response status', response.status);
+        debugLog('Resend OTP response headers', response.headers);
+
+        // Handle 500 server errors specifically
+        if (response.status === 500) {
+            errorDiv.textContent = 'Server error (OTP failed)';
+            errorDiv.style.display = 'block';
+            errorDiv.className = 'auth-message';
+            debugLog('Resend OTP 500 server error');
+            return;
+        }
+        
+        // Handle non-JSON responses safely
+        let result;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            result = await response.json();
+        } else {
+            throw new Error(`Email service returned ${response.status}: ${response.statusText}`);
+        }
+        
+        debugLog('Resend OTP response received', result);
+        debugLog('Resend OTP response success', result.success);
+        debugLog('Resend OTP response message', result.message);
+        
+        if (result.success) {
+            // Show success message
+            errorDiv.textContent = 'OTP has been resent to your email.';
+            errorDiv.style.display = 'block';
+            errorDiv.className = 'auth-success';
+            debugLog('Resend OTP successful');
+        } else {
+            // Show EXACT backend error message - no fallback
+            const errorMessage = result.message || 'Resend OTP failed without error message';
+            errorDiv.textContent = errorMessage;
+            errorDiv.style.display = 'block';
+            errorDiv.className = 'auth-message';
+            debugLog('Resend OTP failed - exact error', errorMessage);
+        }
+    } catch (error) {
+        console.error('Resend OTP error:', error);
+        debugLog('Resend OTP catch error details', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+        });
+        
+        let errorMessage;
+        if (error.message.includes('fetch')) {
+            errorMessage = 'Network error. Please check your internet connection.';
+        } else if (error.message.includes('500')) {
+            errorMessage = 'Server error (OTP failed)';
+        } else {
+            // Show exact error message from backend
+            errorMessage = error.message || 'Email service failed. Contact support.';
+        }
+        
+        errorDiv.textContent = errorMessage;
+        errorDiv.style.display = 'block';
+        errorDiv.className = 'auth-message';
+        debugLog('Resend OTP catch error - showing to user', errorMessage);
+    } finally {
+        // Reset loading state
+        resendLink.dataset.resending = 'false';
+        resendLink.textContent = 'Resend OTP';
+        resendLink.style.pointerEvents = 'auto';
+        debugLog('Resend OTP completed, link re-enabled');
+    }
+});
+
+// Check tempToken on page load
+document.addEventListener('DOMContentLoaded', function() {
+    checkTempToken();
+});
+</script>
+
+<!-- Success Popup -->
+<div id="success-popup" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); 
+z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:#fff; border-radius:16px; padding:40px 32px; max-width:400px; 
+    width:90%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.3); animation: popIn 0.3s ease;">
+        <div style="font-size:56px; margin-bottom:16px;">🎉</div>
+        <h2 style="color:#163055; margin-bottom:10px; font-size:22px;">Welcome to your Owner Dashboard!</h2>
+        <p style="color:#555; font-size:15px; line-height:1.6; margin-bottom:20px;">
+            Redirecting you to manage your listings...
+        </p>
+        <div style="width:100%; background:#eee; border-radius:99px; height:4px; overflow:hidden;">
+            <div id="popup-progress" style="height:4px; background:#163055; width:0%; 
+            border-radius:99px; transition:width 3s linear;"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes popIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+}
+</style>
+
+</body>
+</html>
