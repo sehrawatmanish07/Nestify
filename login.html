@@ -418,6 +418,7 @@ function switchTab(tab) {
 }
 
 // Owner login form submit
+// OTP login has been removed for owner sign-in. Successful owner login now redirects directly to the owner dashboard.
 document.getElementById('owner-login-form')
   .addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -447,34 +448,14 @@ document.getElementById('owner-login-form')
       
       const result = await response.json();
       
-      if (result.success && result.tempToken) {
-        successDiv.textContent = 'Login successful. Sending OTP...';
+      if (result.success) {
+        successDiv.textContent = 'Login successful! Redirecting to dashboard...';
         successDiv.style.display = 'block';
-        localStorage.setItem('tempToken', result.tempToken);
-        
-        const otpResponse = await fetch(
-          `${window.ENV_API_BASE}/otp/send-otp`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ tempToken: result.tempToken })
-        });
-        
-        const otpResult = await otpResponse.json();
-        
-        if (otpResult.success) {
-          successDiv.textContent = 'OTP sent! Redirecting...';
-          setTimeout(() => {
-            window.location.href = 'owner-verify-otp.html';
-          }, 1500);
-        } else {
-          errorDiv.textContent = otpResult.message || 
-            'OTP sending failed.';
-          errorDiv.style.display = 'block';
-        }
+        setTimeout(() => {
+          window.location.href = 'owner-dashboard.html';
+        }, 800);
       } else {
-        errorDiv.textContent = result.message || 
-          'Login failed.';
+        errorDiv.textContent = result.message || 'Login failed. Please check your credentials.';
         errorDiv.style.display = 'block';
       }
     } catch (error) {
