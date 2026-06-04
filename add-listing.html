@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Listing – Nestify</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #163055;
+      --gold: #c9a84c;
+      --bg: #f5f7fa;
+      --card-bg: #ffffff;
+      --text: #333333;
+      --border-radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      max-width: 800px;
+      width: 100%;
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+      overflow: hidden;
+    }
+    .progress {
+      display: flex;
+      background: #e0e0e0;
+    }
+    .progress div {
+      flex: 1;
+      text-align: center;
+      padding: 0.75rem 0;
+      position: relative;
+      font-weight: 600;
+      color: #555;
+    }
+    .progress div.active {
+      background: var(--gold);
+      color: #fff;
+    }
+    .progress div::after {
+      content: '';
+      position: absolute;
+      right: -1px;
+      top: 25%;
+      width: 2px;
+      height: 50%;
+      background: #fff;
+    }
+    .progress div:last-child::after { display: none; }
+    .step {
+      padding: 1.5rem;
+      display: none;
+    }
+    .step.active { display: block; }
+    h2 { margin-bottom: 0.75rem; color: var(--primary); }
+    label { display: block; margin-top: 0.5rem; font-weight: 500; }
+    input[type=text], input[type=email], input[type=tel], input[type=number], textarea, select {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.95rem;
+    }
+    textarea { resize: vertical; min-height: 80px; }
+    .options { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.5rem; }
+    .options label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      background: #f0f0f0;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+    }
+    .options input { margin-right: 0.4rem; }
+    .buttons { margin-top: 1.5rem; display: flex; justify-content: space-between; }
+    button {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s ease;
+    }
+    button:hover { background: #1a3e73; }
+    button.secondary { background: #777; }
+    button.secondary:hover { background: #555; }
+    .error { color: #d93025; margin-top: 0.5rem; }
+    .success-popup {
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-100%);
+      background: var(--gold);
+      color: #fff;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 1000;
+    }
+    @media (max-width: 600px) {
+      .options { flex-direction: column; }
+      .buttons { flex-direction: column; gap: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="progress" id="progressBar">
+    <div class="active" data-step="1">1</div>
+    <div data-step="2">2</div>
+    <div data-step="3">3</div>
+    <div data-step="4">4</div>
+    <div data-step="5">5</div>
+  </div>
+  <form id="listingForm">
+    <!-- STEP 1 -->
+    <div class="step active" data-step="1">
+      <h2>What type of service do you provide?</h2>
+      <div class="options">
+        <label><input type="radio" name="serviceType" value="Hostel" required> Hostel</label>
+        <label><input type="radio" name="serviceType" value="Hostel with Food"> Hostel with Food</label>
+        <label><input type="radio" name="serviceType" value="PG with Food"> Paying Guest (PG) with Food</label>
+        <label><input type="radio" name="serviceType" value="Only Food Service"> Only Food Service</label>
+      </div>
+      <div class="buttons">
+        <span></span>
+        <button type="button" id="next1">Next →</button>
+      </div>
+    </div>
+    <!-- STEP 2 -->
+    <div class="step" data-step="2">
+      <h2>Basic Information</h2>
+      <label>Property/Service Name*<input type="text" name="name" required></label>
+      <label>Owner/Manager Name*<input type="text" name="ownerName" required></label>
+      <label>Email*<input type="email" name="email" required></label>
+      <label>Contact Number*<input type="tel" name="contact" required></label>
+      <label>Location/Address*<input type="text" name="address" required></label>
+      <label>City*<input type="text" name="city" required></label>
+      <div class="buttons">
+        <button type="button" id="back2" class="secondary">← Back</button>
+        <button type="button" id="next2">Next →</button>
+      </div>
+    </div>
+    <!-- STEP 3 -->
+    <div class="step" data-step="3">
+      <h2>Type Specific Details</h2>
+      <div id="typeSpecificContainer"></div>
+      <div class="buttons">
+        <button type="button" id="back3" class="secondary">← Back</button>
+        <button type="button" id="next3">Next →</button>
+      </div>
+    </div>
+    <!-- STEP 4 -->
+    <div class="step" data-step="4">
+      <h2>Pricing Details</h2>
+      <label>Rent per Month/Year (₹)*<input type="number" name="rentPerMonth" required></label>
+      <label>Security Deposit (₹)<input type="number" name="securityDeposit"></label>
+      <label>Extra Charges<textarea name="extraCharges"></textarea></label>
+      <div class="buttons">
+        <button type="button" id="back4" class="secondary">← Back</button>
+        <button type="button" id="next4">Next →</button>
+      </div>
+    </div>
+    <!-- STEP 5 -->
+    <div class="step" data-step="5">
+      <h2>Add Photos</h2>
+      <p>Paste image URLs (Google Drive/Imgur links)</p>
+      <label>Photo URL 1*<input type="url" name="photo1" required></label>
+      <label>Photo URL 2<input type="url" name="photo2"></label>
+      <label>Photo URL 3<input type="url" name="photo3"></label>
+      <label>Photo URL 4<input type="url" name="photo4"></label>
+      <label>Photo URL 5<input type="url" name="photo5"></label>
+      <div class="buttons">
+        <button type="button" id="back5" class="secondary">← Back</button>
+        <button type="submit" id="submitBtn">Submit Listing</button>
+      </div>
+      <div class="error" id="submitError"></div>
+    </div>
+  </form>
+</div>
+<div class="success-popup" id="successPopup">🎉 Listing Submitted!<br>Your listing is under review.</div>
+<script src="config.js"></script>
+<script>
+(function(){
+  const ownerStr = localStorage.getItem('owner');
+  if(!ownerStr){
+    window.location.href = 'login.html';
+    return;
+  }
+  const owner = JSON.parse(ownerStr);
+  const form = document.getElementById('listingForm');
+  const steps = document.querySelectorAll('.step');
+  const progressItems = document.querySelectorAll('.progress div');
+  let currentStep = 1;
+  function showStep(step){
+    steps.forEach(s=>s.classList.toggle('active', Number(s.dataset.step)===step));
+    progressItems.forEach(p=> p.classList.toggle('active', Number(p.dataset.step)===step));
+    currentStep = step;
+  }
+  document.getElementById('next1').addEventListener('click',()=>{
+    if(!form.serviceType.value){
+      alert('Please select a service type.');
+      return;
+    }
+    showStep(2);
+    form.ownerName.value = owner.name || '';
+    form.email.value = owner.email || '';
+    form.contact.value = owner.phone || '';
+  });
+  document.getElementById('back2').addEventListener('click',()=>showStep(1));
+  document.getElementById('next2').addEventListener('click',()=>{
+    const required = ['name','ownerName','email','contact','address','city'];
+    for(const name of required){
+      if(!form[name].value.trim()){ alert('Please fill all required fields.'); return; }
+    }
+    showStep(3);
+    renderTypeSpecific();
+  });
+  document.getElementById('back3').addEventListener('click',()=>showStep(2));
+  document.getElementById('next3').addEventListener('click',()=>{ if(!validateTypeSpecific()) return; showStep(4); });
+  document.getElementById('back4').addEventListener('click',()=>showStep(3));
+  document.getElementById('next4').addEventListener('click',()=>{ if(!form.rentPerMonth.value){ alert('Rent is required'); return; } showStep(5); });
+  document.getElementById('back5').addEventListener('click',()=>showStep(4));
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const errorDiv = document.getElementById('submitError');
+    errorDiv.textContent = '';
+    const data = collectFormData();
+    try {
+      const resp = await fetch(`${window.ENV_API_BASE}/listings/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(data)
+      });
+      if(!resp.ok){
+        const err = await resp.json();
+        throw new Error(err.message || 'Submission failed');
+      }
+      const popup = document.getElementById('successPopup');
+      popup.style.display = 'block';
+      setTimeout(()=>{ window.location.href = 'owner-dashboard.html'; }, 3000);
+    } catch(err){
+      errorDiv.textContent = err.message;
+    }
+  });
+  function renderTypeSpecific(){
+    const container = document.getElementById('typeSpecificContainer');
+    const type = form.serviceType.value;
+    container.innerHTML = '';
+    const createCheckboxGroup = (title, name, options)=>{
+      const wrapper = document.createElement('div');
+      const lbl = document.createElement('label');
+      lbl.textContent = title;
+      wrapper.appendChild(lbl);
+      const div = document.createElement('div');
+      div.className = 'options';
+      options.forEach(opt=>{
+        const l = document.createElement('label');
+        const c = document.createElement('input');
+        c.type = 'checkbox';
+        c.name = name;
+        c.value = opt;
+        l.appendChild(c);
+        l.appendChild(document.createTextNode(' '+opt));
+        div.appendChild(l);
+      });
+      wrapper.appendChild(div);
+      return wrapper;
+    };
+    const createRadioGroup = (name, title, options)=>{
+      const wrapper = document.createElement('div');
+      const lbl = document.createElement('label');
+      lbl.textContent = title;
+      wrapper.appendChild(lbl);
+      const div = document.createElement('div');
+      div.className = 'options';
+      options.forEach(opt=>{
+        const l = document.createElement('label');
+        const r = document.createElement('input');
+        r.type = 'radio';
+        r.name = name;
+        r.value = opt;
+        l.appendChild(r);
+        l.appendChild(document.createTextNode(' '+opt));
+        div.appendChild(l);
+      });
+      wrapper.appendChild(div);
+      return wrapper;
+    };
+    if(type==='Hostel'){
+      container.appendChild(createRadioGroup('hostelType','Hostel Type',['Boys','Girls']));
+      container.appendChild(createCheckboxGroup('Room Types Available','roomTypes',['Single','Double','Triple']));
+      container.appendChild(createCheckboxGroup('Preferred Tenant','preferredTenant',['Students','Working Professionals']));
+      container.appendChild(createCheckboxGroup('Facilities','facilities',['WiFi','AC','Laundry','Parking','Attach Bathroom','CCTV','Power Backup','Security']));
+      const rules = document.createElement('label');
+      rules.textContent = 'Rules & Timing:';
+      const ta = document.createElement('textarea');
+      ta.name = 'rulesTiming';
+      rules.appendChild(ta);
+      container.appendChild(rules);
+    } else if(type==='Hostel with Food'){
+      container.appendChild(createRadioGroup('hostelType','Hostel Type',['Boys','Girls']));
+      container.appendChild(createCheckboxGroup('Room Types','roomTypes',['Single','Double','Triple']));
+      container.appendChild(createCheckboxGroup('Preferred Tenant','preferredTenant',['Students','Working Professionals']));
+      container.appendChild(createRadioGroup('foodIncluded','Food included in rent?',['Yes','No']));
+      container.appendChild(createRadioGroup('mealsPerDay','Meals per day',['2','3']));
+      container.appendChild(createRadioGroup('foodType','Food Type',['Veg','Non-Veg','Both']));
+      const fq = document.createElement('label');
+      fq.textContent = 'Food quality measures:';
+      const fqa = document.createElement('textarea');
+      fqa.name = 'foodQuality';
+      fq.appendChild(fqa);
+      container.appendChild(fq);
+      container.appendChild(createCheckboxGroup('Facilities','facilities',['WiFi','AC','CCTV','Laundry','Power Backup','Parking','Attach Bathroom','Security']));
+      const rules = document.createElement('label');
+      rules.textContent = 'Rules & Timing:';
+      const rta = document.createElement('textarea');
+      rta.name = 'rulesTiming';
+      rules.appendChild(rta);
+      container.appendChild(rules);
+    } else if(type==='PG with Food'){
+      container.appendChild(createRadioGroup('pgType','PG Type',['Boys','Girls']));
+      container.appendChild(createCheckboxGroup('Sharing Types','sharingTypes',['Single','Double Sharing','Triple Sharing']));
+      container.appendChild(createCheckboxGroup('Preferred Tenant','preferredTenant',['Students','Working Professionals']));
+      container.appendChild(createRadioGroup('foodIncluded','Food included in rent?',['Yes','No']));
+      container.appendChild(createRadioGroup('mealsPerDay','Meals per day',['2','3']));
+      container.appendChild(createRadioGroup('foodType','Food Type',['Veg','Non-Veg','Both']));
+      const mt = document.createElement('label');
+      mt.textContent = 'Meal Timing Details:';
+      const mta = document.createElement('textarea');
+      mta.name = 'mealTiming';
+      mt.appendChild(mta);
+      container.appendChild(mt);
+      container.appendChild(createCheckboxGroup('Facilities','facilities',['AC','CCTV','Laundry','Attach Bathroom','Power Backup','WiFi','Security','Parking']));
+      const rules = document.createElement('label');
+      rules.textContent = 'Rules:';
+      const rta = document.createElement('textarea');
+      rta.name = 'rules';
+      rules.appendChild(rta);
+      container.appendChild(rules);
+      const entry = document.createElement('label');
+      entry.textContent = 'Entry/Exit Timing:';
+      const ein = document.createElement('input');
+      ein.type = 'text';
+      ein.name = 'entryExitTiming';
+      entry.appendChild(ein);
+      container.appendChild(entry);
+      const visitor = document.createElement('label');
+      visitor.textContent = 'Visitor Policy:';
+      const vt = document.createElement('textarea');
+      vt.name = 'visitorPolicy';
+      visitor.appendChild(vt);
+      container.appendChild(visitor);
+      const restr = document.createElement('label');
+      restr.textContent = 'Restrictions:';
+      const rs = document.createElement('textarea');
+      rs.name = 'restrictions';
+      restr.appendChild(rs);
+      container.appendChild(restr);
+    } else if(type==='Only Food Service'){
+      const fc = document.createElement('label');
+      fc.textContent = 'Food Court Name*';
+      const fci = document.createElement('input');
+      fci.type='text'; fci.name='foodCourtName'; fci.required=true;
+      fc.appendChild(fci);
+      container.appendChild(fc);
+      container.appendChild(createRadioGroup('foodType','Types of Food',['Veg','Non-Veg','Both']));
+      container.appendChild(createCheckboxGroup('Meals Offered','mealsOffered',['Breakfast','Lunch','Dinner']));
+      container.appendChild(createRadioGroup('mealsPerDay','Meals per Day',['1','2','3','4']));
+      const price = document.createElement('label');
+      price.textContent='Price per Meal (₹)';
+      const pric = document.createElement('input');
+      pric.type='number'; pric.name='pricePerMeal'; pric.required=true;
+      price.appendChild(pric);
+      container.appendChild(price);
+      const tiffin = document.createElement('label');
+      tiffin.textContent='Monthly Tiffin Cost (₹)';
+      const tif = document.createElement('input');
+      tif.type='number'; tif.name='monthlyTiffinCost';
+      tiffin.appendChild(tif);
+      container.appendChild(tiffin);
+      container.appendChild(createRadioGroup('deliveryAvailable','Delivery Available?',['Yes','No']));
+      const deliveryArea = document.createElement('label');
+      deliveryArea.textContent='Delivery Area';
+      const da = document.createElement('textarea');
+      da.name='deliveryArea';
+      deliveryArea.appendChild(da);
+      deliveryArea.style.display='none';
+      container.appendChild(deliveryArea);
+      const deliveryTime = document.createElement('label');
+      deliveryTime.textContent='Delivery Time Slot';
+      const dts = document.createElement('input');
+      dts.type='text'; dts.name='deliveryTimeSlot';
+      deliveryTime.appendChild(dts);
+      deliveryTime.style.display='none';
+      container.appendChild(deliveryTime);
+      container.appendChild(createRadioGroup('hygiene','Hygiene Standards',['Yes','No']));
+      const quality = document.createElement('label');
+      quality.textContent='Quality measures';
+      const qa = document.createElement('textarea');
+      qa.name='qualityMeasures';
+      quality.appendChild(qa);
+      quality.style.display='none';
+      container.appendChild(quality);
+      container.addEventListener('change', e=>{
+        if(e.target.name==='deliveryAvailable'){
+          const show = e.target.value==='Yes';
+          deliveryArea.style.display = show?'block':'none';
+          deliveryTime.style.display = show?'block':'none';
+          quality.style.display = show?'block':'none';
+        }
+      });
+    }
+  }
+  function validateTypeSpecific(){ return true; }
+  function collectFormData(){
+    const fd = new FormData(form);
+    const data = {};
+    data.serviceType = fd.get('serviceType');
+    data.name = fd.get('name');
+    data.ownerName = fd.get('ownerName');
+    data.email = fd.get('email');
+    data.contact = fd.get('contact');
+    data.address = fd.get('address');
+    data.city = fd.get('city');
+    const typeSpecific = {};
+    for (let [k,v] of fd.entries()){
+      if(['serviceType','name','ownerName','email','contact','address','city','rentPerMonth','securityDeposit','extraCharges','photo1','photo2','photo3','photo4','photo5'].includes(k)) continue;
+      if(typeSpecific[k]){
+        if(Array.isArray(typeSpecific[k])) typeSpecific[k].push(v);
+        else typeSpecific[k]=[typeSpecific[k],v];
+      } else {
+        typeSpecific[k]=v;
+      }
+    }
+    data.typeSpecific = typeSpecific;
+    data.pricing = { rentPerMonth: fd.get('rentPerMonth'), securityDeposit: fd.get('securityDeposit')||null, extraCharges: fd.get('extraCharges')||'' };
+    const photos=[]; for(let i=1;i<=5;i++){ const u=fd.get('photo'+i); if(u) photos.push(u); }
+    data.photos=photos;
+    data.status='pending';
+    return data;
+  }
+})();
+</script>
+</body>
+</html>
