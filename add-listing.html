@@ -179,11 +179,11 @@
     <div class="step" data-step="5">
       <h2>Add Photos</h2>
       <p>Paste image URLs (Google Drive/Imgur links)</p>
-      <label>Photo URL 1*<input type="url" name="photo1" required></label>
-      <label>Photo URL 2<input type="url" name="photo2"></label>
-      <label>Photo URL 3<input type="url" name="photo3"></label>
-      <label>Photo URL 4<input type="url" name="photo4"></label>
-      <label>Photo URL 5<input type="url" name="photo5"></label>
+      <label>Photo URL 1*<input type="url" name="photo1" required></label><span class="error" id="photo1Error"></span>
+      <label>Photo URL 2<input type="url" name="photo2"></label><span class="error" id="photo2Error"></span>
+      <label>Photo URL 3<input type="url" name="photo3"></label><span class="error" id="photo3Error"></span>
+      <label>Photo URL 4<input type="url" name="photo4"></label><span class="error" id="photo4Error"></span>
+      <label>Photo URL 5<input type="url" name="photo5"></label><span class="error" id="photo5Error"></span>
       <div class="buttons">
         <button type="button" id="back5" class="secondary">← Back</button>
         <button type="submit" id="submitBtn">Submit Listing</button>
@@ -239,6 +239,11 @@
     e.preventDefault();
     const errorDiv = document.getElementById('submitError');
     errorDiv.textContent = '';
+    // Validate photo URLs before proceeding
+    if (!validatePhotos()) {
+      errorDiv.textContent = 'Please correct the photo URLs before submitting.';
+      return;
+    }
     const data = collectFormData();
     try {
       const resp = await fetch(`${window.ENV_API_BASE}/listings/add`, {
@@ -428,6 +433,77 @@
     }
   }
   function validateTypeSpecific(){ return true; }
+
+// Image URL validation utilities
+function isValidImageUrl(url) {
+    if (!url) return false;
+    try {
+        new URL(url);
+    } catch {
+        return false;
+    }
+    const imageExtensions = /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i;
+    const imageHosts = [
+        'imgur.com',
+        'drive.google.com',
+        'ibb.co',
+        'postimages.org',
+        'cloudinary.com',
+        'res.cloudinary.com'
+    ];
+    const hasImageExtension = imageExtensions.test(url);
+    const isImageHost = imageHosts.some(host => url.includes(host));
+    return hasImageExtension || isImageHost;
+}
+
+function showPhotoError(input, message) {
+    const errorSpan = document.getElementById(input.name + 'Error');
+    if (message) {
+        input.style.borderColor = '#d93025'; // red
+        errorSpan.textContent = message;
+    } else {
+        input.style.borderColor = '#34a853'; // green
+        errorSpan.textContent = '';
+    }
+}
+
+function validatePhotoField(input) {
+    const url = input.value.trim();
+    if (!url) {
+        if (input.hasAttribute('required')) {
+            const msg = 'Please enter a valid image URL (jpg, png, jpeg, webp)';
+            showPhotoError(input, msg);
+            return false;
+        } else {
+            // optional and empty – no error
+            showPhotoError(input, '');
+            return true;
+        }
+    }
+    if (!isValidImageUrl(url)) {
+        const msg = 'Please enter a valid image URL (jpg, png, jpeg, webp)';
+        showPhotoError(input, msg);
+        return false;
+    }
+    showPhotoError(input, '');
+    return true;
+}
+
+function validatePhotos() {
+    const photoInputs = document.querySelectorAll('input[name^=photo]');
+    let allValid = true;
+    photoInputs.forEach(inp => {
+        if (!validatePhotoField(inp)) allValid = false;
+    });
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = !allValid;
+    return allValid;
+}
+
+// Attach blur validation listeners
+document.querySelectorAll('input[name^=photo]').forEach(inp => {
+    inp.addEventListener('blur', () => validatePhotoField(inp));
+});
   function collectFormData(){
     const fd = new FormData(form);
     const data = {};
